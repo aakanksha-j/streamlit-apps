@@ -1,10 +1,10 @@
 import torch
-from diffusers import StableDiffusionPipeLine
+from diffusers import StableDiffusionPipeline
 import streamlit as st
 
 model = "CompVis/stable-diffusion-v1-4"
 
-pipeline = StableDiffusionPipeLine.from_pretrained(
+pipeline = StableDiffusionPipeline.from_pretrained(
     model, torch_dtype = torch.float32,
     use_auth_token = True)
 
