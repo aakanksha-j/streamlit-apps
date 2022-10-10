@@ -8,7 +8,7 @@ pipeline = StableDiffusionPipeLine.from_pretrained(
     model, torch_dtype = torch.float32,
     use_auth_token = True)
 
-prompt = ("Whale in ocean during sunrise")
-image = pipeline(prompt_guidance_scale = 7.5)['sample'][0]
+image_creation_text = ("Whale in ocean during sunrise")
+image = pipeline(image_creation_text, guidance_scale = 7.5)['sample'][0]
 
 st.image(image)
