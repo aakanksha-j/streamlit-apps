@@ -96,7 +96,7 @@ def streamlit_display():
     ('Human', 'Computer'),
     key = 'opponent')
 
-    size.slider('Choose game board size (game restarts):', 2, 10, key = 'matrix_dimension', on_change=init)
+    size.slider('Choose board size (game restarts):', 2, 10, key = 'matrix_dimension', on_change=init)
 
     # Tic Tac Toe Board
     for i, row in enumerate(st.session_state.board):
