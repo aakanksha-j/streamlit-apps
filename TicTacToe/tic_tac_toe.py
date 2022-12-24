@@ -83,9 +83,12 @@ def computer_move():
         board_button_click_handler(row, column)
 
 def streamlit_display():
-    st.header("❎🅾️ Tic Tac Toe")
+    header_columns = st.columns([1, 3, 1])
+    header_columns[1].title("❎🅾️ Tic Tac Toe")
+    st.header("")
 
     new_game, opponent, size = st.columns([1, 1, 1])
+    st.header("")
     
     new_game.button(
         "New game", key="new_game", help="Start a new game", on_click=init
