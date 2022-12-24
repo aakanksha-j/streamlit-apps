@@ -1,23 +1,24 @@
 import streamlit as st
 import random
 
-MATRIX_DIMENSION = 3
 EMPTY_CELL_CHARACTER = "➖"
 PLAYER_1 = "❎" # human
 PLAYER_2 = "🅾️" # computer
 
 def init():
     # Streamlit session state initialization
-    st.session_state.board = [[EMPTY_CELL_CHARACTER for _ in range(MATRIX_DIMENSION)] for _ in range(MATRIX_DIMENSION)]
+    st.session_state.matrix_dimension = 3 if 'matrix_dimension' not in st.session_state else st.session_state.matrix_dimension
+    st.session_state.board = [[EMPTY_CELL_CHARACTER for _ in range(st.session_state.matrix_dimension)] for _ in range(st.session_state.matrix_dimension)]
     st.session_state.player = PLAYER_1
+    st.session_state.opponent = 'Computer'
     st.session_state.winner = None
-    st.session_state.row_sum, st.session_state.col_sum = [0] * MATRIX_DIMENSION, [0] * MATRIX_DIMENSION
+    st.session_state.row_sum, st.session_state.col_sum = [0] * st.session_state.matrix_dimension, [0] * st.session_state.matrix_dimension
     st.session_state.diag_sum = st.session_state.anti_diag_sum = 0
-
+    
 def get_move():
     while True:
-        coordinate = random.randint(0, (MATRIX_DIMENSION**2) - 1)
-        row, column = divmod(coordinate, MATRIX_DIMENSION)
+        coordinate = random.randint(0, (st.session_state.matrix_dimension**2) - 1)
+        row, column = divmod(coordinate, st.session_state.matrix_dimension)
         value_at_coordinate = st.session_state.board[row][column]
         if value_at_coordinate == EMPTY_CELL_CHARACTER:
             return (row, column)
@@ -31,17 +32,17 @@ def has_current_player_won(player, move):
 
     if row == column:
         st.session_state.diag_sum += offset
-    if row + column == MATRIX_DIMENSION - 1:
+    if row + column == st.session_state.matrix_dimension - 1:
         st.session_state.anti_diag_sum += offset
 
-    if MATRIX_DIMENSION in {
+    if st.session_state.matrix_dimension in {
         st.session_state.row_sum[row],
         st.session_state.col_sum[column],
         st.session_state.diag_sum,
         st.session_state.anti_diag_sum,
     }:
         return True
-    if -MATRIX_DIMENSION in {
+    if -st.session_state.matrix_dimension in {
         st.session_state.row_sum[row],
         st.session_state.col_sum[column],
         st.session_state.diag_sum,
@@ -51,8 +52,8 @@ def has_current_player_won(player, move):
     return False
 
 def are_moves_remaining():
-    for i in range(MATRIX_DIMENSION):
-        for j in range(MATRIX_DIMENSION):
+    for i in range(st.session_state.matrix_dimension):
+        for j in range(st.session_state.matrix_dimension):
             if st.session_state.board[i][j] == EMPTY_CELL_CHARACTER:
                 return True
     return False
@@ -84,13 +85,23 @@ def computer_move():
 def streamlit_display():
     st.header("❎🅾️ Tic Tac Toe")
 
-    st.button(
+    new_game, opponent, size = st.columns([1, 1, 1])
+    
+    new_game.button(
         "New game", key="new_game", help="Start a new game", on_click=init
     )
 
+    opponent.radio(
+    "Choose your opponent:",
+    ('Human', 'Computer'),
+    key = 'opponent')
+
+    size.slider('Choose game board size (game restarts):', 2, 10, key = 'matrix_dimension', on_change=init)
+
     # Tic Tac Toe Board
     for i, row in enumerate(st.session_state.board):
-        columns = st.columns([5, 1, 1, 1, 5])
+        column_array = [2] + [1] * st.session_state.matrix_dimension + [2]
+        columns = st.columns(column_array)
         for j, value in enumerate(row):
             columns[j + 1].button(
                 value,
@@ -103,7 +114,8 @@ def main():
     if "board" not in st.session_state:
         init()
     
-    computer_move()
+    if st.session_state.opponent == 'Computer':
+        computer_move()
 
     streamlit_display()
 
