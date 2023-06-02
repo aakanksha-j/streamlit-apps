@@ -1,12 +1,17 @@
 import streamlit as st
 import random
 import copy
+from enum import Enum
 
 EMPTY_CELL_CHARACTER = "➖"
 PLAYER_1 = "❎" # human
 PLAYER_2 = "🅾️" # computer
 maximal_score = 1000
 minimal_score = -1000
+
+class Intelligence_Level(Enum):
+    Dumb = 1
+    Smart = 2
 
 def init():
     # Streamlit session state initialization
@@ -18,6 +23,7 @@ def init():
     st.session_state.row_sum, st.session_state.col_sum = [0] * st.session_state.matrix_dimension, [0] * st.session_state.matrix_dimension
     st.session_state.diag_sum = st.session_state.anti_diag_sum = 0
     st.session_state.move_count = 0
+    st.session_state.computer_intelligence = 'Dumb'
     
     
 def get_move():
@@ -127,8 +133,10 @@ def board_button_click_handler(i, j):
 
 def computer_move():
     if are_moves_remaining() and st.session_state.player != PLAYER_1:
-        move = get_best_move(PLAYER_2, st.session_state.move_count)
-        
+        if st.session_state.computer_intelligence == 'Dumb': # dumb computer
+            move = get_move()
+        else: # smart computer
+            move = get_best_move(PLAYER_2, st.session_state.move_count)
         row, column = move
         board_button_click_handler(row, column)
     
@@ -214,14 +222,13 @@ def get_score(current_player, move, depth, board_copy):
             return minimal_score + depth # human won
     else:
         return 0
-  
 
 def streamlit_display():
     header_columns = st.columns([1, 3, 1])
     header_columns[1].title("❎🅾️ Tic Tac Toe")
     st.header("")
 
-    new_game, opponent, size = st.columns([1, 1, 1])
+    new_game, opponent, difficulty = st.columns([1, 1, 1])
     st.header("")
     
     new_game.button(
@@ -232,6 +239,11 @@ def streamlit_display():
     "Choose your opponent:",
     ('Human', 'Computer'),
     key = 'opponent')
+
+    difficulty.radio(
+    "Choose difficulty:",
+    ('Dumb', 'Smart'),
+    key = 'computer_intelligence')
 
     # Tic Tac Toe Board
     for i, row in enumerate(st.session_state.board):
